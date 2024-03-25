@@ -21,8 +21,8 @@ services:
     ports:
       - "5010:80"
     networks:
-      - front-tier
-      - back-tier
+      - front-end
+      - back-end
 
   result:
     build: ./result
@@ -37,8 +37,8 @@ services:
       - "5011:80"
       - "127.0.0.1:9229:9229"
     networks:
-      - front-tier
-      - back-tier
+      - front-end
+      - back-end
 
   worker:
     build:
@@ -49,7 +49,7 @@ services:
       db:
         condition: service_healthy 
     networks:
-      - back-tier
+      - back-end
 
   redis:
     image: redis:alpine
@@ -59,7 +59,7 @@ services:
       test: /healthchecks/redis.sh
       interval: "5s"
     networks:
-      - back-tier
+      - back-end
 
   db:
     image: postgres:15-alpine
@@ -67,13 +67,13 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
     volumes:
-      - "db-data:/var/lib/postgresql/data"
+      - "database:/var/lib/postgresql/data"
       - "./healthchecks:/healthchecks"
     healthcheck:
       test: /healthchecks/postgres.sh
       interval: "5s"
     networks:
-      - back-tier
+      - back-end
 
   # this service runs once to seed the database with votes
   # it won't run unless you specify the "seed" profile
@@ -85,12 +85,12 @@ services:
       vote:
         condition: service_healthy 
     networks:
-      - front-tier
+      - front-end
     restart: "no"
 
 volumes:
-  db-data:
+  database:
 
 networks:
-  front-tier:
-  back-tier:
+  front-end:
+  back-end:
